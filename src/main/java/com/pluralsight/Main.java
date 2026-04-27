@@ -1,14 +1,18 @@
 package com.pluralsight;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
-    static ArrayList<Transaction> transactions = new ArrayList<>();
+    static ArrayList<Transaction> transactions = loadOldTransactions();
     public static void main(String[] args) {
         homeScreenMenu();
-        displayAllTransactions();
+        System.out.println("Thank for using our app");
 
     }
 
@@ -84,6 +88,7 @@ public class Main {
                 D) Deposits- Display only the deposits into the account
                 P) Payments- Display only the payments into the account
                 R) Report
+                X) Exit
                 """;
         boolean running = true;
         do { System.out.println(menu);
@@ -105,18 +110,27 @@ public class Main {
         }while (running);
 
     }
-    //TODO: Display the negative amounts
+
     public static void displayPayments() {
+        for (Transaction transaction : transactions){
+            if (transaction.getAmount()<0){
+                displayTransaction(transaction);
+            }
+        }
     }
-    // TODO: Display the positive amounts
     public static void displayDeposits() {
+        for (Transaction transaction : transactions){
+            if (transaction.getAmount()>0){
+                displayTransaction(transaction);
+            }
+        }
     }
     // TODO: Make customized reports
     public static void report() {
     }
 
     public static void displayTransaction(Transaction transaction){
-        System.out.printf("Date: %s\t Description: %s\t Vendor: %s\t Amount: %.2f %n",
+        System.out.printf("Date: %-20s\t Description: %-30s\t Vendor: %-15s\t Amount: %.2f %n",
                 transaction.getDateAndTimeFormated(),
                 transaction.getDescription(),
                 transaction.getVendor(),
@@ -128,6 +142,35 @@ public class Main {
         for (Transaction transaction : transactions){
             displayTransaction(transaction);
         }
+    }
+    public static ArrayList<Transaction> loadOldTransactions(){
+        ArrayList<Transaction> oldTransactions = new ArrayList<>();
+        String fileLocation = "src/main/resources/OldTranscations.cvs";
+        try {
+            FileReader fileReader = new FileReader(fileLocation);
+            BufferedReader reader = new BufferedReader(fileReader);
+            String header = "date|time|description|vendor|amount";
+            String line;
+            while ((line = reader.readLine())!=null){
+                // Handling the header if it exits
+                if (!line.equalsIgnoreCase(header)){
+                    String[] lineSpilt = line.split("\\|");
+                    String date = lineSpilt[0];
+                    String time = lineSpilt[1];
+                    String dateTimeString = date + "T" + time;
+                    LocalDateTime dateTime = LocalDateTime.parse(dateTimeString);
+                    String description = lineSpilt[2];
+                    String vendor = lineSpilt[3];
+                    double amount = Double.parseDouble(lineSpilt[4]);
+                    oldTransactions.add(new Transaction(dateTime,description,vendor,amount));
+
+                }
+            }
+            reader.close();
+        } catch (IOException e) {
+            System.out.println("IO Exception: "+ e);
+        }
+        return oldTransactions;
     }
 
 

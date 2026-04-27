@@ -11,12 +11,21 @@ public class Transaction {
     private String vendor;
     private double amount;
 
+    // For adding new Transaction we will use localdatetime.now();
     public Transaction(String description, String vendor, double amount) {
         this.description = description;
         this.vendor = vendor;
         this.amount = amount;
         this.dateAndTime = LocalDateTime.now();
     }
+
+    public Transaction(LocalDateTime dateAndTime, String description, String vendor, double amount) {
+        this.dateAndTime = dateAndTime;
+        this.description = description;
+        this.vendor = vendor;
+        this.amount = amount;
+    }
+
     // We need the formated dateAndTime to write it in text file.
     public String getDateAndTimeFormated(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss");
