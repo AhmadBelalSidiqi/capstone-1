@@ -8,6 +8,7 @@ public class Main {
     static ArrayList<Transaction> transactions = new ArrayList<>();
     public static void main(String[] args) {
         homeScreenMenu();
+        displayAllTransaction();
 
     }
 
@@ -59,6 +60,22 @@ public class Main {
     }
     // TODO: Make the makePayments method
     public static void makePayments() {
+        boolean running = true;
+        do {
+            System.out.println("Please enter the description: ");
+            String description = scanner.nextLine().trim();
+            System.out.println("Please Enter the vendor name: ");
+            String vendor = scanner.nextLine().trim();
+            System.out.println("Please Enter the amount: ");
+            // amount multiple to minus one to make it negative.
+            double amount = (Double.parseDouble(scanner.nextLine().trim()))*-1;
+            transactions.add(new Transaction(description,vendor,amount));
+
+            System.out.println("do you want add another one yes/no: ");
+            String input = scanner.nextLine().trim();
+            if ((input.equalsIgnoreCase("no"))){
+                running=false; }
+        }while (running);
     }
     // TODO: Make the ledger method
     public static void ledger() {
@@ -71,5 +88,12 @@ public class Main {
                 transaction.getAmount());
 
     }
+
+    public static void displayAllTransaction(){
+        for (Transaction transaction : transactions){
+            displayTransaction(transaction);
+        }
+    }
+
 
 }
