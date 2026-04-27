@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Scanner;
 
 public class Main {
@@ -37,8 +38,10 @@ public class Main {
                     addDeposit();
                 case "p"->
                     makePayments();
-                case "l"->
+                case "l"->{
+                    sortTransactionsList(false);
                     ledger();
+                }
                 // TODO: better way?
                 case  "x"->
                    running = false;
@@ -275,7 +278,14 @@ public class Main {
         }
         return oldTransactions;
     }
-    public static void sortTransactionArray(){
+    public static void sortTransactionsList(boolean ascending){
+
+        if ( ascending) {
+            transactions.sort(Comparator.comparing(Transaction::getDateAndTime));
+        } else {
+            transactions.sort(Comparator.comparing(Transaction::getDateAndTime).reversed());
+
+        }
 
     }
 
