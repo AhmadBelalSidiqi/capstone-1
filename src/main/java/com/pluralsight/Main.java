@@ -1,9 +1,11 @@
 package com.pluralsight;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Main {
     static Scanner scanner = new Scanner(System.in);
+    static ArrayList<Transaction> transactions = new ArrayList<>();
     public static void main(String[] args) {
         homeScreenMenu();
 
@@ -17,26 +19,43 @@ public class Main {
                 L) -ledger-
                 X) -Exit-
                 """;
-        System.out.println(menu);
-        String input = scanner.nextLine();
         boolean running = true;
         do {
+            System.out.println(menu);
+            String input = scanner.nextLine().trim();
             switch (input.toLowerCase()){
-                case "a"->
-                    addDeposit();
                 case "d"->
+                    addDeposit();
+                case "p"->
                     makePayments();
                 case "l"->
                     ledger();
                 // TODO: better way?
                 case  "x"->
-                   running = exit();
-            }
+                   running = false;
+                default ->
+                    System.out.println("Wrong Input");
 
+            }
         }while (running);
     }
-    // TODO: Make the addDeposit method
+
     public static void addDeposit() {
+        boolean running = true;
+        do {
+            System.out.println("Please enter the description: ");
+            String description = scanner.nextLine().trim();
+            System.out.println("Please Enter the vendor name: ");
+            String vendor = scanner.nextLine().trim();
+            System.out.println("Please Enter the amount: ");
+            double amount = Double.parseDouble(scanner.nextLine().trim());
+            transactions.add(new Transaction(description,vendor,amount));
+
+            System.out.println("do you want add another one yes/no: ");
+            String input = scanner.nextLine().trim();
+            if ((input.equalsIgnoreCase("no"))){
+                running=false; }
+        }while (running);
     }
     // TODO: Make the makePayments method
     public static void makePayments() {
@@ -44,7 +63,13 @@ public class Main {
     // TODO: Make the ledger method
     public static void ledger() {
     }
-    public static boolean exit() {
-        return false;
+    public static void displayTransaction(Transaction transaction){
+        System.out.printf("Date: %s\t Description: %s\t Vendor: %s\t Amount: %.2f %n",
+                transaction.getDateAndTimeFormated(),
+                transaction.getDescription(),
+                transaction.getVendor(),
+                transaction.getAmount());
+
     }
+
 }
