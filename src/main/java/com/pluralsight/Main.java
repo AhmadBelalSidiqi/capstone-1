@@ -10,10 +10,10 @@ import java.util.Comparator;
 import java.util.Scanner;
 
 public class Main {
-    static LocalDateTime currentDateAndTime = LocalDateTime.now();
     static Scanner scanner = new Scanner(System.in);
     static ArrayList<Transaction> transactions = loadOldTransactions();
-    static ArrayList<Transaction> reportTransactions = new ArrayList<>();
+    static ArrayList<Transaction> filteredTransactions = new ArrayList<>();
+    static boolean toHomeScreeMenu = false;
 
     public static void main(String[] args) {
         homeScreenMenu();
@@ -38,31 +38,12 @@ public class Main {
                 case "p" -> makePayments();
                 case "l" -> {
                     sortTransactionsList(false);
-                    ledger();
+                    showLedgerMenu();
                 }
                 // TODO: better way?
                 case "x" -> running = false;
                 default -> System.out.println("Wrong Input");
 
-            }
-        } while (running);
-    }
-
-    public static void addDeposit() {
-        boolean running = true;
-        do {
-            System.out.println("Please enter the description: ");
-            String description = scanner.nextLine().trim();
-            System.out.println("Please Enter the vendor name: ");
-            String vendor = scanner.nextLine().trim();
-            System.out.println("Please Enter the amount: ");
-            double amount = Double.parseDouble(scanner.nextLine().trim());
-            transactions.add(new Transaction(description, vendor, amount));
-
-            System.out.println("do you want add another one yes/no: ");
-            String input = scanner.nextLine().trim();
-            if ((input.equalsIgnoreCase("no"))) {
-                running = false;
             }
         } while (running);
     }
@@ -87,30 +68,87 @@ public class Main {
         } while (running);
     }
 
-    public static void ledger() {
-        String menu = """
+    public static void showLedgerMenu() {
+        String ledgerMenu = """
                 Please choose one of the following option:
                 A) ALL- Display all entries
                 D) Deposits- Display only the deposits into the account
                 P) Payments- Display only the payments into the account
                 R) Report
-                X) Exit
+                X) Go back to home screen
                 """;
         boolean running = true;
         do {
-            System.out.println(menu);
+            System.out.println(ledgerMenu);
             String input = scanner.nextLine().trim();
             switch (input.toLowerCase()) {
                 case "a" -> displayAllTransactions();
                 case "d" -> displayDeposits();
                 case "p" -> displayPayments();
-                case "r" -> report();
+                case "r" -> {
+                    showReportMenu();
+                    if (toHomeScreeMenu)
+                        return;
+                }
                 case "x" -> running = false;
                 default -> System.out.println("Wrong Input");
             }
 
         } while (running);
 
+    }
+
+    public static void showReportMenu() {
+        String menu = """
+                Please choose one of the following:
+                1) Month to Date
+                2) Previous Month
+                3) Year to Date
+                4) Previous Year
+                5) Search by Vendor
+                0) Go back
+                H) Home Screen
+                """;
+        boolean running = true;
+        do {
+            filteredTransactions.clear();
+            System.out.println(menu);
+            String input = scanner.nextLine();
+            switch (input.toLowerCase()) {
+
+
+                case "1" -> monthToDate();
+                case "2" -> previousMonth();
+                case "3" -> yearToDate();
+                case "4" -> previousYear();
+                case "5" -> searchByVendor();
+                case "0" -> running = false;
+                case "h" -> { toHomeScreeMenu = true;
+                    return;}
+                default -> System.out.println("wrong Input");
+
+            }
+        } while (running);
+
+    }
+
+    public static void addDeposit() {
+        boolean running = true;
+        do {
+            System.out.println("Please enter the description: ");
+            String description = scanner.nextLine().trim();
+            System.out.println("Please Enter the vendor name: ");
+            String vendor = scanner.nextLine().trim();
+            System.out.println("Please Enter the amount: ");
+            double amount = Double.parseDouble(scanner.nextLine().trim());
+            transactions.add(new Transaction(description, vendor, amount));
+
+            System.out.println("do you want add another one yes/no: ");
+            String input = scanner.nextLine().trim();
+            if ((input.equalsIgnoreCase("no"))) {
+                running = false;
+            }
+        } while (running);
     }
 
     public static void displayPayments() {
@@ -121,6 +159,7 @@ public class Main {
         }
     }
 
+    // TODO: Going back to home screen
     public static void displayDeposits() {
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() > 0) {
@@ -129,107 +168,74 @@ public class Main {
         }
     }
 
-    // TODO: Going back to home screen
-    public static void report() {
-        String menu = """
-                Please choose one of the following:
-                1) Month to Date
-                2) Previous Month
-                3) Year to Date
-                4) Previous Year
-                5) Search by Vendor
-                0) Go back to ledger Page
-                H) Home Screen
-                """;
-        boolean running = true;
-        do {
-            reportTransactions.clear();
-            System.out.println(menu);
-            String input = scanner.nextLine();
-            switch (input.toLowerCase()) {
-
-
-                case "1" -> monthToDate();
-
-                case "2" -> previousMonth();
-
-                case "3" -> yearToDate();
-
-                case "4" -> previousYear();
-
-                case "5" -> searchByVendor();
-
-                case "0" -> running = false;
-
-                case "h" -> homeScreenMenu();
-
-                default -> System.out.println("wrong Input");
-
-            }
-        } while (running);
-
-    }
-
     public static void monthToDate() {
-        LocalDate month = LocalDate.of(currentDateAndTime.getYear(), currentDateAndTime.getMonth(), 1);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate month = LocalDate.of(now.getYear(), now.getMonth(), 1);
         LocalTime time = LocalTime.of(1, 1, 1);
         LocalDateTime thisMonth = LocalDateTime.of(month, time);
         for (Transaction transaction : transactions) {
             if (transaction.getDateAndTime().isAfter(thisMonth)) {
-                reportTransactions.add(transaction);
+                filteredTransactions.add(transaction);
             }
         }
         String name = "monthToDate";
-        generateReport(reportTransactions,name);
+        writeReportToFile(filteredTransactions,name);
     }
 
     public static void previousMonth() {
+        LocalDateTime now = LocalDateTime.now();
         LocalTime time = LocalTime.of(1, 1);
-        LocalDate lastMonth = LocalDate.of(currentDateAndTime.getYear(), currentDateAndTime.getMonth().minus(1), 1);
-        LocalDate month = LocalDate.of(currentDateAndTime.getYear(), currentDateAndTime.getMonth(), 1);
+        LocalDate lastMonth = LocalDate.of(now.getYear(), now.getMonth().minus(1), 1);
+        LocalDate month = LocalDate.of(now.getYear(), now.getMonth(), 1);
         LocalDateTime previousMonth = LocalDateTime.of(lastMonth, time);
         LocalDateTime thisMonth = LocalDateTime.of(month, time);
         for (Transaction transaction : transactions) {
             if (transaction.getDateAndTime().isAfter(previousMonth) && transaction.getDateAndTime().isBefore(thisMonth)) {
-                reportTransactions.add(transaction);
+                filteredTransactions.add(transaction);
             }
         }
         String name = "PreviousMonth";
-        generateReport(reportTransactions,name);
+        writeReportToFile(filteredTransactions,name);
     }
 
     public static void yearToDate() {
+        LocalDateTime now = LocalDateTime.now();
         for (Transaction transaction : transactions) {
             // every transaction in this year and before current date and time , we want to avoid transaction that would be place in the future of current date and time.
-            if (transaction.getDateAndTime().getYear() == currentDateAndTime.getYear() && transaction.getDateAndTime().isBefore(currentDateAndTime)) {
-                reportTransactions.add(transaction);
+            if (transaction.getDateAndTime().getYear() == now.getYear() && transaction.getDateAndTime().isBefore(now)) {
+                filteredTransactions.add(transaction);
             }
         }
         String name = "YearToDate";
-        generateReport(reportTransactions,name);
+        writeReportToFile(filteredTransactions,name);
     }
 
     public static void previousYear() {
-        int previousYear = currentDateAndTime.getYear() - 1;
+        LocalDateTime now = LocalDateTime.now();
+        int previousYear = now.getYear() - 1;
         for (Transaction transaction : transactions) {
             if (transaction.getDateAndTime().getYear() == previousYear) {
-                reportTransactions.add(transaction);
+                filteredTransactions.add(transaction);
             }
         }
         String name = "PreviousYear";
-        generateReport(reportTransactions,name);
+        writeReportToFile(filteredTransactions,name);
     }
 
     public static void searchByVendor() {
         System.out.println("Please enter the vendor name: ");
-        String vendor = scanner.nextLine();
+        String vendorInput = scanner.nextLine();
         for (Transaction transaction : transactions) {
-            if (transaction.getVendor().equalsIgnoreCase(vendor)) {
-                reportTransactions.add(transaction);
+            if (transaction.getVendor().equalsIgnoreCase(vendorInput)) {
+                filteredTransactions.add(transaction);
             }
         }
-        String name = "v:"+vendor;
-        generateReport(reportTransactions,name);
+        if (filteredTransactions.isEmpty()){
+            System.out.println("No transactions found for vendor: " + vendorInput );
+            return;
+        }
+        String name = "v:"+vendorInput;
+        writeReportToFile(filteredTransactions,name);
     }
 
     public static void displayTransaction(Transaction transaction) {
@@ -287,12 +293,13 @@ public class Main {
         }
 
     }
-    public static void  generateReport(ArrayList<Transaction> transactions, String name){
-        String fileLocation = "src/main/resources/transactions"+name;
+    public static void writeReportToFile(ArrayList<Transaction> transactions, String name){
+        String fileLocation = "src/main/resources/transactions"+name.trim()+".cvs";
         try {
-            FileWriter fileWriter = new FileWriter(fileLocation,true);
+            FileWriter fileWriter = new FileWriter(fileLocation,false);
             BufferedWriter writer = new BufferedWriter(fileWriter);
             writer.write("Date|Time|Description|Vendor|Amount");
+            writer.newLine();
             for (Transaction transaction :transactions){
                 writer.append(transaction.getDateAndTimeFormated())
                         .append("|").append(transaction.getDescription())
@@ -304,6 +311,7 @@ public class Main {
         } catch (IOException e) {
             System.err.println("IO Exception: " + e);
         }
+        System.out.println("Report Generated successfully");
     }
 
 
