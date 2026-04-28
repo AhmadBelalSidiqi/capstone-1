@@ -20,7 +20,7 @@ public class Transaction {
     }
 
     // We need the formated dateAndTime to write it in text file.
-    public String getDateAndTimeFormated(){
+    public String getDateAndTimeFormatted(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss");
         return dateAndTime.format(formatter);
     }

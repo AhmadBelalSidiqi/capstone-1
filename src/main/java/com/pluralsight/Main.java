@@ -9,19 +9,25 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Scanner;
 
+/***
+ * Main entry point for the ledger program
+ */
 public class Main {
     static Scanner scanner = new Scanner(System.in);
     static ArrayList<Transaction> transactions = loadOldTransactions();
 
     public static void main(String[] args) {
         homeScreenMenu();
-        System.out.println("Thank for using our app");
-
+        System.out.println("Thank you for using our app.");
     }
 
+    /***
+     * Displays the main menu and routes the user
+     * to deposits, payments, ledger view, or exit
+     */
     public static void homeScreenMenu() {
         String menuText = """
-                Please chose on of the following option:
+                Please choose one of the following options::
                 D) -Add deposit-
                 P) -Make Payments(Debit)-
                 L) -ledger-
@@ -38,17 +44,20 @@ public class Main {
                     sortTransactionsList();
                     showLedgerMenu();
                 }
-                // TODO: better way?
                 case "x" -> running = false;
-                default -> System.out.println("Wrong Input");
+                default -> System.out.println("Invalid input.");
 
             }
         } while (running);
     }
 
+    /***
+     * Displays Ledger menu options such as:
+     * viewing all transactions, deposits, payments, or reports
+     */
     public static void showLedgerMenu() {
         String ledgerMenu = """
-                Please choose one of the following option:
+                Please choose one of the following options:
                 A) ALL- Display all entries
                 D) Deposits- Display only the deposits into the account
                 P) Payments- Display only the payments into the account
@@ -65,13 +74,17 @@ public class Main {
                 case "p" -> displayPayments();
                 case "r" -> showReportMenu();
                 case "h" -> running = false;
-                default -> System.out.println("Wrong Input");
+                default -> System.out.println("Invalid input.");
             }
 
         } while (running);
 
     }
 
+    /***
+     * Allows users to search transactions using multiple filters
+     * including: date range, description, vendor, and amount.
+     */
     public static void customSearch() {
         System.out.println("Start date(press Enter to skip): ");
         LocalDateTime startDate = getDate();
@@ -88,11 +101,16 @@ public class Main {
         if (result.isEmpty()) {
             System.out.println("No transaction matched your criteria.");
         } else {
+            displayTransactions(result);
             writeReportOfThisTransactions(result, "CustomSearch");
         }
     }
 
-
+    /***
+     * Applies all selected filters to the transaction list and
+     * return the filtered result.
+     * @return Arraylist<>Transaction</>
+     */
     private static ArrayList<Transaction> applyFilter(LocalDateTime startDate, LocalDateTime endDate, String description, String vendor, String amountInput) {
         ArrayList<Transaction> result;
         result = filterByDate(startDate, endDate);
@@ -122,17 +140,17 @@ public class Main {
     }
 
     private static ArrayList<Transaction> filterByAmount(String amountInput, ArrayList<Transaction> result) {
-        ArrayList<Transaction> filterByAmount = new ArrayList<>();
+        ArrayList<Transaction> filteredByAmount = new ArrayList<>();
         if (amountInput.isEmpty())
             return result;
         else {
             double amount = Double.parseDouble(amountInput);
             for (Transaction transaction : result) {
                 if (transaction.getAmount() == amount) {
-                    filterByAmount.add(transaction);
+                    filteredByAmount.add(transaction);
                 }
             }
-            return filterByAmount;
+            return filteredByAmount;
         }
     }
 
@@ -164,7 +182,6 @@ public class Main {
         }
     }
 
-
     public static void addDeposit() {
         boolean running = true;
         do {
@@ -177,16 +194,19 @@ public class Main {
             String vendor = scanner.nextLine().trim();
             System.out.println("Please Enter the amount: ");
             double amount = Double.parseDouble(scanner.nextLine().trim());
-            transactions.add(new Transaction(userDateTime, description, vendor, amount));
+            Transaction t = new Transaction(userDateTime, description, vendor, amount);
+            transactions.add(t);
+            System.out.println("Transactions added successfully");
+            displayTransaction(t);
 
-
-            System.out.println("do you want add another one yes/no: ");
+            System.out.println("do you want to add another one yes/no: ");
             String input = scanner.nextLine().trim();
             if ((input.equalsIgnoreCase("no"))) {
                 running = false;
             }
         } while (running);
         saveTransactionToFile();
+
     }
 
     public static void displayDeposits() {
@@ -200,8 +220,8 @@ public class Main {
 
             }
         }
-        if(userWantsReport()){
-            String name = "deposits";
+        if (userWantsReport()) {
+            String name = "Deposits";
             writeReportOfThisTransactions(deposits, name);
         }
 
@@ -218,11 +238,14 @@ public class Main {
             System.out.println("Please Enter the vendor name: ");
             String vendor = scanner.nextLine().trim();
             System.out.println("Please Enter the amount: ");
-            // amount multiple to minus one to make it negative.
+            // Multiply amount by -1 to represent a payment (debt)
             double amount = (Double.parseDouble(scanner.nextLine().trim())) * -1;
-            transactions.add(new Transaction(userDateTime, description, vendor, amount));
+            Transaction t = new Transaction(userDateTime, description, vendor, amount);
+            transactions.add(t);
+            System.out.println("Transactions added successfully");
+            displayTransaction(t);
 
-            System.out.println("do you want add another one yes/no: ");
+            System.out.println("Do you want to add another one yes/no: ");
             String input = scanner.nextLine().trim();
             if ((input.equalsIgnoreCase("no"))) {
                 running = false;
@@ -240,7 +263,7 @@ public class Main {
                 payments.add(transaction);
             }
         }
-        if(userWantsReport()){
+        if (userWantsReport()) {
             String name = "Payments";
             writeReportOfThisTransactions(payments, name);
         }
@@ -273,7 +296,7 @@ public class Main {
                 case "5" -> searchByVendor();
                 case "6" -> customSearch();
                 case "0" -> running = false;
-                default -> System.out.println("wrong Input");
+                default -> System.out.println("Invalid input");
 
             }
         } while (running);
@@ -292,7 +315,7 @@ public class Main {
             }
         }
         displayTransactions(result);
-        System.out.println("Do you wan to generate a report (Yes/No): ");
+        System.out.println("Do you want to generate a report (Yes/No): ");
         if (scanner.nextLine().equalsIgnoreCase("yes")) {
             String name = "monthToDate";
             writeReportOfThisTransactions(result, name);
@@ -313,7 +336,7 @@ public class Main {
             }
         }
         displayTransactions(result);
-        System.out.println("Do you wan to generate a report (Yes/No): ");
+        System.out.println("Do you want to generate a report (Yes/No): ");
         if (scanner.nextLine().equalsIgnoreCase("yes")) {
             String name = "PreviousMonth";
             writeReportOfThisTransactions(result, name);
@@ -348,6 +371,7 @@ public class Main {
                 result.add(transaction);
             }
         }
+        displayTransactions(result);
         if (scanner.nextLine().equalsIgnoreCase("yes")) {
             String name = "PreviousYear";
             writeReportOfThisTransactions(result, name);
@@ -357,7 +381,7 @@ public class Main {
     public static void searchByVendor() {
         ArrayList<Transaction> result = new ArrayList<>();
         System.out.println("Please enter the vendor name: ");
-        String vendorInput = scanner.nextLine();
+        String vendorInput = scanner.nextLine().trim();
         for (Transaction transaction : transactions) {
             if (transaction.getVendor().equalsIgnoreCase(vendorInput)) {
                 result.add(transaction);
@@ -368,8 +392,9 @@ public class Main {
             return;
         }
         displayTransactions(result);
+        System.out.println("Do You want to generate a report");
         if (scanner.nextLine().equalsIgnoreCase("yes")) {
-            String name = "v:" + vendorInput;
+            String name = "vendor_" + vendorInput;
             writeReportOfThisTransactions(result, name);
         }
     }
@@ -389,16 +414,21 @@ public class Main {
 
     public static void displayTransaction(Transaction transaction) {
         System.out.printf("Date: %-20s\t Description: %-30s\t Vendor: %-15s\t Amount: %.2f %n",
-                transaction.getDateAndTimeFormated(),
+                transaction.getDateAndTimeFormatted(),
                 transaction.getDescription(),
                 transaction.getVendor(),
                 transaction.getAmount());
 
     }
 
+
+    /**
+     * Loads previously saved transactions from a CSV file
+     * and converts them into Transaction objects.
+     */
     public static ArrayList<Transaction> loadOldTransactions() {
         ArrayList<Transaction> oldTransactions = new ArrayList<>();
-        String fileLocation = "src/main/resources/OldTranscations.cvs";
+        String fileLocation = "src/main/resources/oldTranscations.csv";
         try {
             FileReader fileReader = new FileReader(fileLocation);
             BufferedReader reader = new BufferedReader(fileReader);
@@ -426,6 +456,9 @@ public class Main {
         return oldTransactions;
     }
 
+    /**
+     * Sorts Transactions by date and time in descending order.
+     */
     public static void sortTransactionsList() {
         transactions.sort(Comparator.comparing(Transaction::getDateAndTime).reversed());
     }
@@ -438,7 +471,7 @@ public class Main {
             writer.write("Date|Time|Description|Vendor|Amount");
             writer.newLine();
             for (Transaction transaction : transactions) {
-                writer.append(transaction.getDateAndTimeFormated())
+                writer.append(transaction.getDateAndTimeFormatted())
                         .append("|").append(transaction.getDescription())
                         .append("|").append(transaction.getVendor())
                         .append("|").append(String.valueOf(transaction.getAmount()));
@@ -456,11 +489,13 @@ public class Main {
         try {
             FileWriter fileWriter = new FileWriter("src/main/resources/Transcations.csv");
             BufferedWriter writer = new BufferedWriter(fileWriter);
+            writer.write("Date|Time|Description|Vendor|Amount");
+            writer.newLine();
             for (Transaction transaction : transactions) {
-                writer.write(transaction.getDateAndTimeFormated() + "|"
+                writer.write(transaction.getDateAndTimeFormatted() + "|"
                         + transaction.getDescription() + "|"
                         + transaction.getVendor() + "|"
-                        + transaction.getAmount() + "|");
+                        + transaction.getAmount());
                 writer.newLine();
             }
             writer.close();
@@ -476,7 +511,6 @@ public class Main {
     }
 
     // region getUserDatetime
-
     public static LocalDateTime getUserDateTime(int userYear) {
 
         int month = getUserMonth();
@@ -488,6 +522,12 @@ public class Main {
         LocalTime time = LocalTime.of(hour, min, sec);
         return LocalDateTime.of(date, time);
     }
+
+
+    /**
+     * Build a LocalDateTime object
+     * Returns null if user skips entry.
+     */
 
     private static LocalDateTime getDate() {
         System.out.println("Please enter the year: ");
@@ -522,7 +562,7 @@ public class Main {
 
     private static int getUserSec() {
         while (true) {
-            System.out.println("Please enter the sec(1-60): ");
+            System.out.println("Please enter the second(1-59): ");
             int sec = Integer.parseInt(scanner.nextLine().trim());
             if (sec > 0 && sec <= 60)
                 return sec;
