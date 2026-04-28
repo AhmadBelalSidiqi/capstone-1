@@ -123,8 +123,10 @@ public class Main {
                 case "4" -> previousYear();
                 case "5" -> searchByVendor();
                 case "0" -> running = false;
-                case "h" -> { toHomeScreeMenu = true;
-                    return;}
+                case "h" -> {
+                    toHomeScreeMenu = true;
+                    return;
+                }
                 default -> System.out.println("wrong Input");
 
             }
@@ -152,18 +154,32 @@ public class Main {
     }
 
     public static void displayPayments() {
+        ArrayList<Transaction> payments = new ArrayList<>();
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() < 0) {
                 displayTransaction(transaction);
+                payments.add(transaction);
             }
+        }
+        System.out.println("Do you want to generate a report(Yes/No): ");
+        if (scanner.nextLine().equalsIgnoreCase("yes")) {
+            String name = "Payments";
+            writeReportToFile(payments, name);
         }
     }
 
-    // TODO: Going back to home screen
     public static void displayDeposits() {
+        ArrayList<Transaction> deposits = new ArrayList<>();
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() > 0) {
                 displayTransaction(transaction);
+                deposits.add(transaction);
+
+            }
+            System.out.println("Do you want to generate a report (yes/no):");
+            if (scanner.nextLine().equalsIgnoreCase("yes")) {
+                String name = "deposits";
+                writeReportToFile(deposits, name);
             }
         }
     }
@@ -179,7 +195,7 @@ public class Main {
             }
         }
         String name = "monthToDate";
-        writeReportToFile(filteredTransactions,name);
+        writeReportToFile(filteredTransactions, name);
     }
 
     public static void previousMonth() {
@@ -195,7 +211,7 @@ public class Main {
             }
         }
         String name = "PreviousMonth";
-        writeReportToFile(filteredTransactions,name);
+        writeReportToFile(filteredTransactions, name);
     }
 
     public static void yearToDate() {
@@ -207,7 +223,7 @@ public class Main {
             }
         }
         String name = "YearToDate";
-        writeReportToFile(filteredTransactions,name);
+        writeReportToFile(filteredTransactions, name);
     }
 
     public static void previousYear() {
@@ -219,7 +235,7 @@ public class Main {
             }
         }
         String name = "PreviousYear";
-        writeReportToFile(filteredTransactions,name);
+        writeReportToFile(filteredTransactions, name);
     }
 
     public static void searchByVendor() {
@@ -230,12 +246,12 @@ public class Main {
                 filteredTransactions.add(transaction);
             }
         }
-        if (filteredTransactions.isEmpty()){
-            System.out.println("No transactions found for vendor: " + vendorInput );
+        if (filteredTransactions.isEmpty()) {
+            System.out.println("No transactions found for vendor: " + vendorInput);
             return;
         }
-        String name = "v:"+vendorInput;
-        writeReportToFile(filteredTransactions,name);
+        String name = "v:" + vendorInput;
+        writeReportToFile(filteredTransactions, name);
     }
 
     public static void displayTransaction(Transaction transaction) {
@@ -293,14 +309,15 @@ public class Main {
         }
 
     }
-    public static void writeReportToFile(ArrayList<Transaction> transactions, String name){
-        String fileLocation = "src/main/resources/transactions"+name.trim()+".cvs";
+
+    public static void writeReportToFile(ArrayList<Transaction> transactions, String name) {
+        String fileLocation = "src/main/resources/transactions" + name.trim() + ".cvs";
         try {
-            FileWriter fileWriter = new FileWriter(fileLocation,false);
+            FileWriter fileWriter = new FileWriter(fileLocation, false);
             BufferedWriter writer = new BufferedWriter(fileWriter);
             writer.write("Date|Time|Description|Vendor|Amount");
             writer.newLine();
-            for (Transaction transaction :transactions){
+            for (Transaction transaction : transactions) {
                 writer.append(transaction.getDateAndTimeFormated())
                         .append("|").append(transaction.getDescription())
                         .append("|").append(transaction.getVendor())
