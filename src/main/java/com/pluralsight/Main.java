@@ -37,7 +37,7 @@ public class Main {
                 case "d" -> addDeposit();
                 case "p" -> makePayments();
                 case "l" -> {
-                    sortTransactionsList(false);
+                    sortTransactionsList();
                     showLedgerMenu();
                 }
                 // TODO: better way?
@@ -46,56 +46,6 @@ public class Main {
 
             }
         } while (running);
-    }
-
-    public static void makePayments() {
-        boolean running = true;
-        do {
-            System.out.println("Please enter the description: ");
-            String description = scanner.nextLine().trim();
-            System.out.println("Please Enter the vendor name: ");
-            String vendor = scanner.nextLine().trim();
-            System.out.println("Please Enter the amount: ");
-            // amount multiple to minus one to make it negative.
-            double amount = (Double.parseDouble(scanner.nextLine().trim())) * -1;
-            transactions.add(new Transaction(description, vendor, amount));
-
-            System.out.println("do you want add another one yes/no: ");
-            String input = scanner.nextLine().trim();
-            if ((input.equalsIgnoreCase("no"))) {
-                running = false;
-            }
-        } while (running);
-    }
-
-    public static void showLedgerMenu() {
-        String ledgerMenu = """
-                Please choose one of the following option:
-                A) ALL- Display all entries
-                D) Deposits- Display only the deposits into the account
-                P) Payments- Display only the payments into the account
-                R) Report
-                X) Go back to home screen
-                """;
-        boolean running = true;
-        do {
-            System.out.println(ledgerMenu);
-            String input = scanner.nextLine().trim();
-            switch (input.toLowerCase()) {
-                case "a" -> displayAllTransactions();
-                case "d" -> displayDeposits();
-                case "p" -> displayPayments();
-                case "r" -> {
-                    showReportMenu();
-                    if (toHomeScreeMenu)
-                        return;
-                }
-                case "x" -> running = false;
-                default -> System.out.println("Wrong Input");
-            }
-
-        } while (running);
-
     }
 
     public static void showReportMenu() {
@@ -134,16 +84,48 @@ public class Main {
 
     }
 
+    public static void showLedgerMenu() {
+        String ledgerMenu = """
+                Please choose one of the following option:
+                A) ALL- Display all entries
+                D) Deposits- Display only the deposits into the account
+                P) Payments- Display only the payments into the account
+                R) Report
+                X) Go back to home screen
+                """;
+        boolean running = true;
+        do {
+            System.out.println(ledgerMenu);
+            String input = scanner.nextLine().trim();
+            switch (input.toLowerCase()) {
+                case "a" -> displayAllTransactions();
+                case "d" -> displayDeposits();
+                case "p" -> displayPayments();
+                case "r" -> {
+                    showReportMenu();
+                    if (toHomeScreeMenu)
+                        return;
+                }
+                case "x" -> running = false;
+                default -> System.out.println("Wrong Input");
+            }
+
+        } while (running);
+
+    }
+
     public static void addDeposit() {
         boolean running = true;
         do {
+            LocalDateTime userDateTime = getUserDateTime();
             System.out.println("Please enter the description: ");
             String description = scanner.nextLine().trim();
             System.out.println("Please Enter the vendor name: ");
             String vendor = scanner.nextLine().trim();
             System.out.println("Please Enter the amount: ");
             double amount = Double.parseDouble(scanner.nextLine().trim());
-            transactions.add(new Transaction(description, vendor, amount));
+            transactions.add(new Transaction(userDateTime,description, vendor, amount));
+
 
             System.out.println("do you want add another one yes/no: ");
             String input = scanner.nextLine().trim();
@@ -151,9 +133,51 @@ public class Main {
                 running = false;
             }
         } while (running);
+        writeTransactionsToFile();
+    }
+
+    public static void displayDeposits() {
+
+        sortTransactionsList();
+        ArrayList<Transaction> deposits = new ArrayList<>();
+        for (Transaction transaction : transactions) {
+            if (transaction.getAmount() > 0) {
+                displayTransaction(transaction);
+                deposits.add(transaction);
+
+            }
+        }
+        System.out.println("Do you want to generate a report (yes/no):");
+        if (scanner.nextLine().equalsIgnoreCase("yes")) {
+            String name = "deposits";
+            writeReportToFile(deposits, name);
+        }
+    }
+
+    public static void makePayments() {
+        boolean running = true;
+        do {
+            LocalDateTime userDateTime = getUserDateTime();
+            System.out.println("Please enter the description: ");
+            String description = scanner.nextLine().trim();
+            System.out.println("Please Enter the vendor name: ");
+            String vendor = scanner.nextLine().trim();
+            System.out.println("Please Enter the amount: ");
+            // amount multiple to minus one to make it negative.
+            double amount = (Double.parseDouble(scanner.nextLine().trim())) * -1;
+            transactions.add(new Transaction(userDateTime,description, vendor, amount));
+
+            System.out.println("do you want add another one yes/no: ");
+            String input = scanner.nextLine().trim();
+            if ((input.equalsIgnoreCase("no"))) {
+                running = false;
+            }
+        } while (running);
+        writeTransactionsToFile();
     }
 
     public static void displayPayments() {
+        sortTransactionsList();
         ArrayList<Transaction> payments = new ArrayList<>();
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() < 0) {
@@ -165,22 +189,6 @@ public class Main {
         if (scanner.nextLine().equalsIgnoreCase("yes")) {
             String name = "Payments";
             writeReportToFile(payments, name);
-        }
-    }
-
-    public static void displayDeposits() {
-        ArrayList<Transaction> deposits = new ArrayList<>();
-        for (Transaction transaction : transactions) {
-            if (transaction.getAmount() > 0) {
-                displayTransaction(transaction);
-                deposits.add(transaction);
-
-            }
-            System.out.println("Do you want to generate a report (yes/no):");
-            if (scanner.nextLine().equalsIgnoreCase("yes")) {
-                String name = "deposits";
-                writeReportToFile(deposits, name);
-            }
         }
     }
 
@@ -299,15 +307,8 @@ public class Main {
         return oldTransactions;
     }
 
-    public static void sortTransactionsList(boolean ascending) {
-
-        if (ascending) {
-            transactions.sort(Comparator.comparing(Transaction::getDateAndTime));
-        } else {
-            transactions.sort(Comparator.comparing(Transaction::getDateAndTime).reversed());
-
-        }
-
+    public static void sortTransactionsList() {
+        transactions.sort(Comparator.comparing(Transaction::getDateAndTime).reversed());
     }
 
     public static void writeReportToFile(ArrayList<Transaction> transactions, String name) {
@@ -330,6 +331,91 @@ public class Main {
         }
         System.out.println("Report Generated successfully");
     }
+
+    public static void  writeTransactionsToFile(){
+        sortTransactionsList();
+        try {
+            FileWriter fileWriter = new FileWriter("src/main/resources/Transcations.cvs");
+            BufferedWriter writer = new BufferedWriter(fileWriter);
+            for (Transaction transaction: transactions){
+                writer.write(transaction.getDateAndTimeFormated()+"|"
+                            + transaction.getDescription()+"|"
+                            + transaction.getVendor()+"|"
+                            + transaction.getAmount()+"|");
+                writer.newLine();
+            }
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
+
+    // region getUserDatetime
+    public static LocalDateTime getUserDateTime(){
+
+        int year = getUserYear();
+        int month = getUserMonth();
+        int day = getUserDay();
+        int hour = getUserHour();
+        int min = getUserMin();
+        int sec = getUserSec();
+        LocalDate date = LocalDate.of(year,month,day);
+        LocalTime time = LocalTime.of(hour,min,sec);
+        return LocalDateTime.of(date,time);
+    }
+
+    public static int getUserYear(){
+        System.out.println("Please enter the year: ");
+        return Integer.parseInt(scanner.nextLine().trim());
+    }
+
+    private static int getUserDay() {
+        while (true){
+            System.out.println("Please enter the day (1-31): ");
+            int day = Integer.parseInt(scanner.nextLine().trim());
+            if(day > 0 && day <31)
+                return day;
+        }
+    }
+
+    public static int getUserMonth(){
+      while (true){
+          System.out.println("Please enter a month(1-12): ");
+          int month = Integer.parseInt(scanner.nextLine().trim());
+          if(month>0 && month <13){
+              return month;}
+      }
+    }
+
+    private static int getUserSec() {
+        while (true){
+            System.out.println("Please enter the sec(1-60): ");
+            int sec = Integer.parseInt(scanner.nextLine().trim());
+            if (sec > 0 && sec <= 60)
+                return sec;
+        }
+
+    }
+
+    private static int getUserHour() {
+        while (true){
+            System.out.println("Please enter the hour(1-24): ");
+            int hour = Integer.parseInt(scanner.nextLine().trim());
+            if (hour > 0 && hour <=24 )
+                return hour;
+        }
+    }
+
+    private static int getUserMin() {
+        while (true){
+            System.out.println("Please enter the minute(1-60): ");
+            int min = Integer.parseInt(scanner.nextLine().trim());
+            if (min >0 && min <=60)
+                return min;
+        }
+    }
+    // endregion
 
 
 }
