@@ -14,7 +14,7 @@ import java.util.Scanner;
  */
 public class Main {
     static Scanner scanner = new Scanner(System.in);
-    static ArrayList<Transaction> transactions = loadOldTransactions();
+    static ArrayList<Transaction> transactions = loadTransactions();
 
     public static void main(String[] args) {
         homeScreenMenu();
@@ -27,12 +27,13 @@ public class Main {
      */
     public static void homeScreenMenu() {
         String menuText = """
+                -----------------Home Screen Menu-----------------
                 Please choose one of the following options::
                 D) -Add deposit-
                 P) -Make Payments(Debit)-
                 L) -ledger-
                 X) -Exit-
-                """;
+                --------------------------------------------------""";
         boolean running = true;
         do {
             System.out.println(menuText);
@@ -57,13 +58,14 @@ public class Main {
      */
     public static void showLedgerMenu() {
         String ledgerMenu = """
+                -----------------------Ledger Menu-----------------------
                 Please choose one of the following options:
                 A) ALL- Display all entries
                 D) Deposits- Display only the deposits into the account
                 P) Payments- Display only the payments into the account
                 R) Report
                 H) Home - Go back to the home page
-                """;
+                ---------------------------------------------------------""";
         boolean running = true;
         do {
             System.out.println(ledgerMenu);
@@ -213,6 +215,7 @@ public class Main {
 
         sortTransactionsList();
         ArrayList<Transaction> deposits = new ArrayList<>();
+        displayHeader();
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() > 0) {
                 displayTransaction(transaction);
@@ -257,6 +260,7 @@ public class Main {
     public static void displayPayments() {
         sortTransactionsList();
         ArrayList<Transaction> payments = new ArrayList<>();
+        displayHeader();
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() < 0) {
                 displayTransaction(transaction);
@@ -401,22 +405,29 @@ public class Main {
 
 
     public static void displayAllTransactions() {
-        for (Transaction transaction : transactions) {
-            displayTransaction(transaction);
-        }
+        displayTransactions(transactions);
         if(userWantsReport()){
             writeReportOfThisTransactions(transactions,"All_Deposits");
         }
     }
 
+    private static void displayHeader() {
+        System.out.printf("%-20s\t %-30s\t  %-15s\t %s %n",
+                "Date    \tTime",
+                "Description",
+                "Vendor",
+                "Amount");
+    }
+
     public static void displayTransactions(ArrayList<Transaction> transactions) {
+        displayHeader();
         for (Transaction transaction : transactions) {
             displayTransaction(transaction);
         }
     }
 
     public static void displayTransaction(Transaction transaction) {
-        System.out.printf("Date: %-20s\t Description: %-30s\t Vendor: %-15s\t Amount: %.2f %n",
+        System.out.printf("%-20s\t %-30s\t  %-15s\t %.2f %n",
                 transaction.getDateAndTimeFormatted(),
                 transaction.getDescription(),
                 transaction.getVendor(),
@@ -429,9 +440,9 @@ public class Main {
      * Loads previously saved transactions from a CSV file
      * and converts them into Transaction objects.
      */
-    public static ArrayList<Transaction> loadOldTransactions() {
+    public static ArrayList<Transaction> loadTransactions() {
         ArrayList<Transaction> oldTransactions = new ArrayList<>();
-        String fileLocation = "src/main/resources/oldTranscations.csv";
+        String fileLocation = "src/main/resources/transcations.csv";
         try {
             FileReader fileReader = new FileReader(fileLocation);
             BufferedReader reader = new BufferedReader(fileReader);
@@ -480,6 +491,7 @@ public class Main {
                         .append("|").append(String.valueOf(transaction.getAmount()));
                 writer.newLine();
             }
+            writer.flush();
             writer.close();
         } catch (IOException e) {
             System.err.println("IO Exception: " + e);
@@ -490,7 +502,7 @@ public class Main {
     public static void saveTransactionToFile() {
         sortTransactionsList();
         try {
-            FileWriter fileWriter = new FileWriter("src/main/resources/Transcations.csv");
+            FileWriter fileWriter = new FileWriter("src/main/resources/transcations.csv");
             BufferedWriter writer = new BufferedWriter(fileWriter);
             writer.write("Date|Time|Description|Vendor|Amount");
             writer.newLine();
@@ -501,6 +513,7 @@ public class Main {
                         + transaction.getAmount());
                 writer.newLine();
             }
+            writer.flush();
             writer.close();
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -566,7 +579,7 @@ public class Main {
         while (true) {
             System.out.println("Please enter the second(1-59): ");
             int sec = Integer.parseInt(scanner.nextLine().trim());
-            if (sec > 0 && sec <= 60)
+            if (sec > 0 && sec <= 59)
                 return sec;
         }
 
@@ -574,18 +587,18 @@ public class Main {
 
     private static int getUserHour() {
         while (true) {
-            System.out.println("Please enter the hour(1-24): ");
+            System.out.println("Please enter the hour(1-23): ");
             int hour = Integer.parseInt(scanner.nextLine().trim());
-            if (hour > 0 && hour <= 24)
+            if (hour > 0 && hour <= 23)
                 return hour;
         }
     }
 
     private static int getUserMin() {
         while (true) {
-            System.out.println("Please enter the minute(1-60): ");
+            System.out.println("Please enter the minute(1-59): ");
             int min = Integer.parseInt(scanner.nextLine().trim());
-            if (min > 0 && min <= 60)
+            if (min > 0 && min <= 59)
                 return min;
         }
     }
