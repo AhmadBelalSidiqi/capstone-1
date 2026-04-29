@@ -38,21 +38,7 @@ Users can view transaction history, filter transactions, generate reports, and p
 
 ---
 ## Project  Structure 
-src/
-
-└─ main/
-
-├─ java/
-
-│   └─ com.pluralsight/
-
-│       ├─ Main.java
-
-│       └─ Transaction.java
-
-└─ resources/
-
-└─ OldTransactions.csv
+![program_flow.png](Images/program_flow.png)
 
 ---
 
