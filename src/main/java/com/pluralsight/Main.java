@@ -21,7 +21,7 @@ public class Main {
         System.out.println("Thank you for using our app.");
     }
 
-    /***
+    /**
      * Displays the main menu and routes the user
      * to deposits, payments, ledger view, or exit
      */
@@ -51,7 +51,7 @@ public class Main {
         } while (running);
     }
 
-    /***
+    /**
      * Displays Ledger menu options such as:
      * viewing all transactions, deposits, payments, or reports
      */
@@ -81,7 +81,7 @@ public class Main {
 
     }
 
-    /***
+    /**
      * Allows users to search transactions using multiple filters
      * including: date range, description, vendor, and amount.
      */
@@ -106,7 +106,7 @@ public class Main {
         }
     }
 
-    /***
+    /**
      * Applies all selected filters to the transaction list and
      * return the filtered result.
      * @return Arraylist<>Transaction</>
@@ -404,6 +404,9 @@ public class Main {
         for (Transaction transaction : transactions) {
             displayTransaction(transaction);
         }
+        if(userWantsReport()){
+            writeReportOfThisTransactions(transactions,"All_Deposits");
+        }
     }
 
     public static void displayTransactions(ArrayList<Transaction> transactions) {
@@ -528,7 +531,6 @@ public class Main {
      * Build a LocalDateTime object
      * Returns null if user skips entry.
      */
-
     private static LocalDateTime getDate() {
         System.out.println("Please enter the year: ");
         String input = scanner.nextLine().trim();
