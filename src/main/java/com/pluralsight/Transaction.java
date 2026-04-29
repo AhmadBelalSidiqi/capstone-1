@@ -19,7 +19,11 @@ public class Transaction {
         this.amount = amount;
     }
 
-    // We need the formated dateAndTime to write it in text file.
+    /**
+     * Returns the transaction date and time formatted for CVS output.
+     * The format is used to ensure consistency when writing the files.
+     * @return DateTime.formated
+     */
     public String getDateAndTimeFormatted(){
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd|HH:mm:ss");
         return dateAndTime.format(formatter);

@@ -514,18 +514,6 @@ public class Main {
     }
 
     // region getUserDatetime
-    public static LocalDateTime getUserDateTime(int userYear) {
-
-        int month = getUserMonth();
-        int day = getUserDay();
-        int hour = getUserHour();
-        int min = getUserMin();
-        int sec = getUserSec();
-        LocalDate date = LocalDate.of(userYear, month, day);
-        LocalTime time = LocalTime.of(hour, min, sec);
-        return LocalDateTime.of(date, time);
-    }
-
 
     /**
      * Build a LocalDateTime object
@@ -541,6 +529,18 @@ public class Main {
             return getUserDateTime(year);
         }
 
+    }
+
+    public static LocalDateTime getUserDateTime(int userYear) {
+
+        int month = getUserMonth();
+        int day = getUserDay();
+        int hour = getUserHour();
+        int min = getUserMin();
+        int sec = getUserSec();
+        LocalDate date = LocalDate.of(userYear, month, day);
+        LocalTime time = LocalTime.of(hour, min, sec);
+        return LocalDateTime.of(date, time);
     }
 
     private static int getUserDay() {
