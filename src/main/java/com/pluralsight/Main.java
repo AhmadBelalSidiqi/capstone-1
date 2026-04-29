@@ -587,8 +587,12 @@ public class Main {
 
     private static int getUserSec() {
         while (true) {
-            System.out.println("Please enter the second(1-59): ");
-            int sec = Integer.parseInt(scanner.nextLine().trim());
+            System.out.println("Please enter the second(1-59) (press enter to skip) : ");
+            String userInput = scanner.nextLine().trim();
+            if (userInput.isEmpty() ){
+                return 0;
+            }
+            int sec = Integer.parseInt(userInput);
             if (sec > 0 && sec <= 59)
                 return sec;
         }
@@ -597,8 +601,11 @@ public class Main {
 
     private static int getUserHour() {
         while (true) {
-            System.out.println("Please enter the hour(1-23): ");
-            int hour = Integer.parseInt(scanner.nextLine().trim());
+            System.out.println("Please enter the hour(1-23) (press enter to skip): ");
+            String userInput = scanner.nextLine().trim();
+            if (userInput.isEmpty() ){
+                return 0;}
+            int hour = Integer.parseInt(userInput);
             if (hour > 0 && hour <= 23)
                 return hour;
         }
@@ -606,8 +613,11 @@ public class Main {
 
     private static int getUserMin() {
         while (true) {
-            System.out.println("Please enter the minute(1-59): ");
-            int min = Integer.parseInt(scanner.nextLine().trim());
+            System.out.println("Please enter the minute(1-59) (press enter to skip): ");
+            String userInput = scanner.nextLine().trim();
+            if (userInput.isEmpty() ){
+                return 0;}
+            int min = Integer.parseInt(userInput);
             if (min > 0 && min <= 59)
                 return min;
         }
