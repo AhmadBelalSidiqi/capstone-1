@@ -1,6 +1,4 @@
 package com.pluralsight;
-
-
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -8,11 +6,18 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Scanner;
-
-/***
+/**
  * Main entry point for the ledger program
  */
 public class Main {
+    //region colors
+    public static final String RESET = "\u001B[0m";
+    public static final String RED = "\u001B[31m";
+    public static final String GREEN = "\u001B[32m";
+    public static final String PURPLE = "\u001B[35m";
+    public static final String GOLD = "\u001B[38;5;220m";
+    public static final String BLUE = "\u001B[34m";
+    //endregion
     static Scanner scanner = new Scanner(System.in);
     static ArrayList<Transaction> transactions = loadTransactions();
 
@@ -20,23 +25,22 @@ public class Main {
         homeScreenMenu();
         System.out.println("Thank you for using our app.");
     }
-
     /**
      * Displays the main menu and routes the user
      * to deposits, payments, ledger view, or exit
      */
     public static void homeScreenMenu() {
         String menuText = """
-                -----------------Home Screen Menu-----------------
-                Please choose one of the following options::
-                D) -Add deposit-
-                P) -Make Payments(Debit)-
-                L) -ledger-
-                X) -Exit-
-                --------------------------------------------------""";
+                ----------------Home Screen Menu-----------------
+                Please choose one of the following options:     |
+                D) -Add deposit-                                |
+                P) -Make Payments(Debit)-                       |
+                L) -ledger-                                     |
+                X) -Exit-                                       |
+                -------------------------------------------------""";
         boolean running = true;
         do {
-            System.out.println(menuText);
+            System.out.println(BLUE + menuText + RESET);
             String input = scanner.nextLine().trim();
             switch (input.toLowerCase()) {
                 case "d" -> addDeposit();
@@ -58,17 +62,17 @@ public class Main {
      */
     public static void showLedgerMenu() {
         String ledgerMenu = """
-                -----------------------Ledger Menu-----------------------
-                Please choose one of the following options:
-                A) ALL- Display all entries
-                D) Deposits- Display only the deposits into the account
-                P) Payments- Display only the payments into the account
-                R) Report
-                H) Home - Go back to the home page
-                ---------------------------------------------------------""";
+                -------------------------Ledger Menu------------------------
+                Please choose one of the following options:                |
+                A) ALL- Display all entries                                |
+                D) Deposits- Display only the deposits into the account    |
+                P) Payments- Display only the payments into the account    |
+                R) Report                                                  |
+                H) Home - Go back to the home page                         |
+                ------------------------------------------------------------""";
         boolean running = true;
         do {
-            System.out.println(ledgerMenu);
+            System.out.println(BLUE+ledgerMenu+RESET);
             String input = scanner.nextLine().trim();
             switch (input.toLowerCase()) {
                 case "a" -> displayAllTransactions();
@@ -216,6 +220,7 @@ public class Main {
         sortTransactionsList();
         ArrayList<Transaction> deposits = new ArrayList<>();
         displayHeader();
+        System.out.print(GREEN);
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() > 0) {
                 displayTransaction(transaction);
@@ -223,6 +228,7 @@ public class Main {
 
             }
         }
+        System.out.print(RESET);
         if (userWantsReport()) {
             String name = "Deposits";
             writeReportOfThisTransactions(deposits, name);
@@ -261,12 +267,14 @@ public class Main {
         sortTransactionsList();
         ArrayList<Transaction> payments = new ArrayList<>();
         displayHeader();
+        System.out.print(RED);
         for (Transaction transaction : transactions) {
             if (transaction.getAmount() < 0) {
                 displayTransaction(transaction);
                 payments.add(transaction);
             }
         }
+        System.out.print(RESET);
         if (userWantsReport()) {
             String name = "Payments";
             writeReportOfThisTransactions(payments, name);
@@ -319,11 +327,11 @@ public class Main {
             }
         }
         displayTransactions(result);
-        System.out.println("Do you want to generate a report (Yes/No): ");
-        if (scanner.nextLine().equalsIgnoreCase("yes")) {
+        if (userWantsReport()){
             String name = "monthToDate";
             writeReportOfThisTransactions(result, name);
         }
+
     }
 
     public static void previousMonth() {
@@ -340,11 +348,11 @@ public class Main {
             }
         }
         displayTransactions(result);
-        System.out.println("Do you want to generate a report (Yes/No): ");
-        if (scanner.nextLine().equalsIgnoreCase("yes")) {
+        if (userWantsReport()){
             String name = "PreviousMonth";
             writeReportOfThisTransactions(result, name);
         }
+
     }
 
     public static void yearToDate() {
@@ -358,11 +366,11 @@ public class Main {
             }
         }
         displayTransactions(result);
-        System.out.println("Do you want to generate a repot(yes/no): ");
-        if (scanner.nextLine().equalsIgnoreCase("yes")) {
+        if (userWantsReport()){
             String name = "YearToDate";
             writeReportOfThisTransactions(result, name);
         }
+
     }
 
     public static void previousYear() {
@@ -376,7 +384,7 @@ public class Main {
             }
         }
         displayTransactions(result);
-        if (scanner.nextLine().equalsIgnoreCase("yes")) {
+        if (userWantsReport()){
             String name = "PreviousYear";
             writeReportOfThisTransactions(result, name);
         }
@@ -396,9 +404,8 @@ public class Main {
             return;
         }
         displayTransactions(result);
-        System.out.println("Do You want to generate a report");
-        if (scanner.nextLine().equalsIgnoreCase("yes")) {
-            String name = "vendor_" + vendorInput;
+        if (userWantsReport()){
+            String name = "vendor_";
             writeReportOfThisTransactions(result, name);
         }
     }
@@ -412,11 +419,13 @@ public class Main {
     }
 
     private static void displayHeader() {
+        System.out.print(GOLD);
         System.out.printf("%-20s\t %-30s\t  %-15s\t %s %n",
                 "Date    \tTime",
                 "Description",
                 "Vendor",
                 "Amount");
+        System.out.print(RESET);
     }
 
     public static void displayTransactions(ArrayList<Transaction> transactions) {
@@ -434,7 +443,6 @@ public class Main {
                 transaction.getAmount());
 
     }
-
 
     /**
      * Loads previously saved transactions from a CSV file
@@ -522,7 +530,9 @@ public class Main {
     }
 
     private static boolean userWantsReport() {
+        System.out.print(PURPLE);
         System.out.println("Do you want to generate a report (yes/no):");
+        System.out.print(RESET);
         return scanner.nextLine().equalsIgnoreCase("yes");
     }
 
