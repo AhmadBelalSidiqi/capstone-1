@@ -1,4 +1,5 @@
 package com.pluralsight;
+
 import java.io.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -6,6 +7,7 @@ import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Scanner;
+
 /**
  * Main entry point for the ledger program
  */
@@ -25,6 +27,7 @@ public class Main {
         homeScreenMenu();
         System.out.println("Thank you for using our app.");
     }
+
     /**
      * Displays the main menu and routes the user
      * to deposits, payments, ledger view, or exit
@@ -45,10 +48,7 @@ public class Main {
             switch (input.toLowerCase()) {
                 case "d" -> addDeposit();
                 case "p" -> makePayments();
-                case "l" -> {
-                    sortTransactionsList();
-                    showLedgerMenu();
-                }
+                case "l" -> showLedgerMenu();
                 case "x" -> running = false;
                 default -> System.out.println("Invalid input.");
 
@@ -61,6 +61,7 @@ public class Main {
      * viewing all transactions, deposits, payments, or reports
      */
     public static void showLedgerMenu() {
+        sortTransactionsList();
         String ledgerMenu = """
                 -------------------------Ledger Menu------------------------
                 Please choose one of the following options:                |
@@ -72,7 +73,7 @@ public class Main {
                 ------------------------------------------------------------""";
         boolean running = true;
         do {
-            System.out.println(BLUE+ledgerMenu+RESET);
+            System.out.println(BLUE + ledgerMenu + RESET);
             String input = scanner.nextLine().trim();
             switch (input.toLowerCase()) {
                 case "a" -> displayAllTransactions();
@@ -115,6 +116,7 @@ public class Main {
     /**
      * Applies all selected filters to the transaction list and
      * return the filtered result.
+     *
      * @return Arraylist<>Transaction</>
      */
     private static ArrayList<Transaction> applyFilter(LocalDateTime startDate, LocalDateTime endDate, String description, String vendor, String amountInput) {
@@ -140,7 +142,6 @@ public class Main {
                 continue;
             }
             dateTimeFilteredTransactions.add(transaction);
-
         }
         return dateTimeFilteredTransactions;
     }
@@ -327,7 +328,7 @@ public class Main {
             }
         }
         displayTransactions(result);
-        if (userWantsReport()){
+        if (userWantsReport()) {
             String name = "monthToDate";
             writeReportOfThisTransactions(result, name);
         }
@@ -342,13 +343,15 @@ public class Main {
         LocalDate month = LocalDate.of(now.getYear(), now.getMonth(), 1);
         LocalDateTime previousMonth = LocalDateTime.of(lastMonth, time);
         LocalDateTime thisMonth = LocalDateTime.of(month, time);
+
+
         for (Transaction transaction : transactions) {
             if (transaction.getDateAndTime().isAfter(previousMonth) && transaction.getDateAndTime().isBefore(thisMonth)) {
                 result.add(transaction);
             }
         }
         displayTransactions(result);
-        if (userWantsReport()){
+        if (userWantsReport()) {
             String name = "PreviousMonth";
             writeReportOfThisTransactions(result, name);
         }
@@ -366,7 +369,7 @@ public class Main {
             }
         }
         displayTransactions(result);
-        if (userWantsReport()){
+        if (userWantsReport()) {
             String name = "YearToDate";
             writeReportOfThisTransactions(result, name);
         }
@@ -375,7 +378,6 @@ public class Main {
 
     public static void previousYear() {
         ArrayList<Transaction> result = new ArrayList<>();
-
         LocalDateTime now = LocalDateTime.now();
         int previousYear = now.getYear() - 1;
         for (Transaction transaction : transactions) {
@@ -384,7 +386,7 @@ public class Main {
             }
         }
         displayTransactions(result);
-        if (userWantsReport()){
+        if (userWantsReport()) {
             String name = "PreviousYear";
             writeReportOfThisTransactions(result, name);
         }
@@ -404,7 +406,7 @@ public class Main {
             return;
         }
         displayTransactions(result);
-        if (userWantsReport()){
+        if (userWantsReport()) {
             String name = "vendor_";
             writeReportOfThisTransactions(result, name);
         }
@@ -413,8 +415,8 @@ public class Main {
 
     public static void displayAllTransactions() {
         displayTransactions(transactions);
-        if(userWantsReport()){
-            writeReportOfThisTransactions(transactions,"All_Deposits");
+        if (userWantsReport()) {
+            writeReportOfThisTransactions(transactions, "All_Deposits");
         }
     }
 
@@ -589,7 +591,7 @@ public class Main {
         while (true) {
             System.out.println("Please enter the second(1-59) (press enter to skip) : ");
             String userInput = scanner.nextLine().trim();
-            if (userInput.isEmpty() ){
+            if (userInput.isEmpty()) {
                 return 0;
             }
             int sec = Integer.parseInt(userInput);
@@ -603,8 +605,9 @@ public class Main {
         while (true) {
             System.out.println("Please enter the hour(1-23) (press enter to skip): ");
             String userInput = scanner.nextLine().trim();
-            if (userInput.isEmpty() ){
-                return 0;}
+            if (userInput.isEmpty()) {
+                return 0;
+            }
             int hour = Integer.parseInt(userInput);
             if (hour > 0 && hour <= 23)
                 return hour;
@@ -615,8 +618,9 @@ public class Main {
         while (true) {
             System.out.println("Please enter the minute(1-59) (press enter to skip): ");
             String userInput = scanner.nextLine().trim();
-            if (userInput.isEmpty() ){
-                return 0;}
+            if (userInput.isEmpty()) {
+                return 0;
+            }
             int min = Integer.parseInt(userInput);
             if (min > 0 && min <= 59)
                 return min;
