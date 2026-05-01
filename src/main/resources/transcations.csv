@@ -16,6 +16,8 @@ Date|Time|Description|Vendor|Amount
 2026-01-25|00:00:00||ghost|1000.0
 2026-01-15|09:30:00|Invoice 2001 paid|Acme Client|1750.0
 2026-01-03|10:10:10|January rent|Landlord|-950.0
+2026-01-01|00:00:00|BNY|Sidiqi|10000.0
+2026-01-01|00:00:00|Toll|New York City|-100.0
 2025-12-31|23:50:00|Year-end adjustment|Bank|300.0
 2025-11-11|09:09:09|Domain renewal|GoDaddy|-21.17
 2025-10-21|14:25:33|Quarterly bonus|Bank|500.0

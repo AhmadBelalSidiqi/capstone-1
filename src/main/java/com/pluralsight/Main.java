@@ -570,8 +570,12 @@ public class Main {
 
     private static int getUserDay() {
         while (true) {
-            System.out.println("Please enter the day (1-31): ");
-            int day = Integer.parseInt(scanner.nextLine().trim());
+            System.out.println("Please enter the day (1-31)(press enter to skip): ");
+            String userInput = scanner.nextLine().trim();
+            if (userInput.isEmpty() ){
+                return 1;
+            }
+            int day = Integer.parseInt(userInput);
             if (day > 0 && day < 31)
                 return day;
         }
@@ -579,8 +583,12 @@ public class Main {
 
     public static int getUserMonth() {
         while (true) {
-            System.out.println("Please enter a month(1-12): ");
-            int month = Integer.parseInt(scanner.nextLine().trim());
+            System.out.println("Please enter a month(1-12)(press enter to skip): ");
+            String userInput = scanner.nextLine().trim();
+            if (userInput.isEmpty() ){
+                return 1;
+            }
+            int month   = Integer.parseInt(userInput);
             if (month > 0 && month < 13) {
                 return month;
             }
